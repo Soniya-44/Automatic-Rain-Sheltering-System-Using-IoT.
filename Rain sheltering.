@@ -1,0 +1,29 @@
+#include <Servo.h>
+
+Servo shelterServo;
+
+const int rainPin = 2;
+int rainStatus;
+
+void setup() {
+  pinMode(rainPin, INPUT);
+  shelterServo.attach(9);
+  shelterServo.write(0);   // Shelter open initially
+
+  Serial.begin(9600);
+}
+
+void loop() {
+  rainStatus = digitalRead(rainPin);
+
+  if (rainStatus == LOW) {   // Rain detected
+    Serial.println("Rain Detected");
+    shelterServo.write(90);  // Close shelter
+    delay(500);
+  }
+  else {
+    Serial.println("No Rain");
+    shelterServo.write(0);   // Open shelter
+    delay(500);
+  }
+}
