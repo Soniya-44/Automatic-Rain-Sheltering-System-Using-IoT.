@@ -1,0 +1,57 @@
+#include <Servo.h>
+#include <Wire.h>
+#include <LiquidCrystal_I2C.h>
+
+Servo roofServo;
+LiquidCrystal_I2C lcd(0x27, 16, 2); // Check your LCD address
+
+const int rainSensorPin = 2;
+const int buzzerPin = 8;
+const int servoPin = 9;
+
+void setup() {
+  pinMode(rainSensorPin, INPUT);
+  pinMode(buzzerPin, OUTPUT);
+  
+  roofServo.attach(servoPin);
+  roofServo.write(0); // 0 = Roof OPEN
+
+  lcd.init();
+  lcd.backlight();
+  lcd.print("Rain Sheltering");
+  lcd.setCursor(0,1);
+  lcd.print("System Ready");
+  delay(2000);
+  
+  Serial.begin(9600);
+}
+
+void loop() {
+  int rainDetected = digitalRead(rainSensorPin); // LOW = Rain, HIGH = No Rain
+
+  if (rainDetected == LOW) {
+    // RAIN DETECTED - CLOSE ROOF
+    Serial.println("Rain Detected! Closing Roof...");
+    lcd.clear();
+    lcd.print("Status: Rain!");
+    lcd.setCursor(0,1);
+    lcd.print("Closing Roof...");
+
+    roofServo.write(90); // 90 = Roof CLOSE - adjust as per your setup
+    digitalWrite(buzzerPin, HIGH);
+    delay(1000);
+    digitalWrite(buzzerPin, LOW);
+    
+  } else {
+    // NO RAIN - OPEN ROOF
+    Serial.println("No Rain - Roof Open");
+    lcd.clear();
+    lcd.print("No Rain");
+    lcd.setCursor(0,1);
+    lcd.print("Roof OPEN");
+
+    roofServo.write(0); // Open
+    digitalWrite(buzzerPin, LOW);
+  }
+  delay(1000);
+}
